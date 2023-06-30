@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AKTIFIS - AKTIvitas FISik</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f2f2f2;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    h2 {
+      margin-top: 30px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      color: #666;
+      font-weight: bold;
+    }
+
+    input[type="number"] {
+      width: 100px;
+      padding: 5px;
+      font-size: 16px;
+    }
+
+    input[type="text"] {
+      width: 120px;
+      padding: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    #timer {
+      margin-top: 20px;
+      font-size: 24px;
+      text-align: center;
+      color: #333;
+    }
+
+    #scheduleTable {
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    #scheduleTable th, #scheduleTable td {
+      padding: 8px;
+      border: 1px solid #ccc;
+    }
+
+    #totalMinutes {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    var activityTimer;
+    var activityDuration = 0;
+    var totalMinutes = 0;
+    var alarmTime = '';
+
+    // Penjadwalan aktivitas per hari
+    var schedule = {
+      Monday: 0,
+      Tuesday: 0,
+      Wednesday: 0,
+      Thursday: 0,
+      Friday: 0,
+      Saturday: 0,
+      Sunday: 0
+    };
+
+    function startActivity() {
+      var minutes = parseInt(document.getElementById('activityMinutes').value);
+      if (isNaN(minutes) || minutes <= 0) {
+        alert('Masukkan jumlah menit yang valid.');
+        return;
+      }
+
+      activityDuration = minutes;
+
+      var day = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+      schedule[day] += activityDuration;
+
+      var remainingTime = activityDuration;
+      var timerDisplay = document.getElementById('timer');
+      timerDisplay.innerText = 'Waktu Aktivitas: ' + remainingTime + ' menit';
+
+      activityTimer = setInterval(function() {
+        remainingTime--;
+        timerDisplay.innerText = 'Waktu Aktivitas: ' + remainingTime + ' menit';
+
+        if (remainingTime <= 0) {
+          clearInterval(activityTimer);
+          timerDisplay.innerText = 'Aktivitas selesai!';
+          alert('Selamat! Anda telah menyelesaikan aktivitas fisik Anda.');
+        }
+      }, 60000); // update setiap 1 menit (60,000 milidet
+      }, 60000); // update setiap 1 menit (60,000 milidetik)
+    }
+
+    function stopActivity() {
+      clearInterval(activityTimer);
+      document.getElementById('timer').innerText = 'Aktivitas dihentikan';
+    }
+
+    function capturePhoto() {
+      // Kode untuk mengakses kamera dan mengambil foto dari perangkat
+      // Implementasikan kode sesuai dengan dokumentasi API yang relevan
+      alert('Foto diambil!');
+    }
+
+    function shareToWhatsApp() {
+      // Kode untuk membagikan foto ke WhatsApp
+      // Implementasikan kode sesuai dengan dokumentasi API yang relevan
+      alert('Foto berhasil dibagikan ke WhatsApp!');
+    }
+
+    function setAlarm() {
+      var alarmInput = document.getElementById('alarmTime').value;
+      if (!alarmInput) {
+        alert('Masukkan waktu alarm.');
+        return;
+      }
+
+      var pattern = /^([01]\d|2[0-3]):([0-5]\d)$/;
+      if (!pattern.test(alarmInput)) {
+        alert('Format waktu alarm tidak valid. Gunakan format HH:MM (misalnya 08:30 untuk pukul 8:30 pagi).');
+        return;
+      }
+
+      alarmTime = alarmInput;
+      alert('Alarm berhasil diatur pada pukul ' + alarmTime);
+    }
+
+    function calculateTotalMinutes() {
+      var totalMinutesDisplay = document.getElementById('totalMinutes');
+      totalMinutesDisplay.innerText = 'Total Menit: ' + totalMinutes + ' menit';
+    }
+
+    function updateScheduleTable() {
+      var scheduleTable = document.getElementById('scheduleTable');
+      var days = Object.keys(schedule);
+
+      for (var i = 0; i < days.length; i++) {
+        var day = days[i];
+        var minutes = schedule[day];
+
+        var row = scheduleTable.rows[i + 1];
+        row.cells[1].innerText = minutes;
+      }
+    }
+
+    function submitSchedule() {
+      var days = Object.keys(schedule);
+
+      for (var i = 0; i < days.length; i++) {
+        var day = days[i];
+        var minutes = parseInt(document.getElementById(day).value);
+
+        if (isNaN(minutes) || minutes < 0) {
+          alert('Masukkan jumlah menit yang valid untuk setiap hari.');
+          return;
+        }
+
+        schedule[day] = minutes;
+        totalMinutes += minutes;
+      }
+
+      alert('Jadwal berhasil disimpan!');
+      calculateTotalMinutes();
+      updateScheduleTable();
+    }
+  </script>
+</head>
+<body>
+  <h1>AKTIFIS - AKTIvitas FISik</h1>
+
+  <h2>Pembuatan Jadwal Aktivitas Fisik</h2>
+  <div>
+    <label for="activityMinutes">Durasi Aktivitas (dalam menit):</label>
+    <input type="number" id="activityMinutes" min="1" required>
+  </div>
+  <button onclick="startActivity()">Mulai Aktivitas</button>
+  <button onclick="stopActivity()">Hentikan Aktivitas</button>
+
+  <h2>Perhitungan Total Menit per Minggu</h2>
+  <button onclick="calculateTotalMinutes()">Hitung Total Menit</button>
+  <div id="totalMinutes">Total Menit: 0 menit</div>
+
+  <h2>Penjadwalan Aktivitas per Hari</h2>
+  <table id="scheduleTable">
+    <tr>
+      <th>Hari</th>
+            <th>Menit</th>
+    </tr>
+    <tr>
+      <td>Senin</td>
+      <td><input type="number" id="Monday" min="0" value="0"></td>
+    </tr>
+    <tr>
+      <td>Selasa</td>
+      <td><input type="number" id="Tuesday" min="0" value="0"></td>
+    </tr>
+    <tr>
+      <td>Rabu</td>
+      <td><input type="number" id="Wednesday" min="0" value="0"></td>
+    </tr>
+    <tr>
+      <td>Kamis</td>
+      <td><input type="number" id="Thursday" min="0" value="0"></td>
+    </tr>
+    <tr>
+      <td>Jumat</td>
+      <td><input type="number" id="Friday" min="0" value="0"></td>
+    </tr>
+    <tr>
+      <td>Sabtu</td>
+      <td><input type="number" id="Saturday" min="0" value="0"></td>
+    </tr>
+    <tr>
+      <td>Minggu</td>
+      <td><input type="number" id="Sunday" min="0" value="0"></td>
+    </tr>
+  </table>
+
+  <button onclick="submitSchedule()">Simpan Jadwal</button>
+
+  <h2>Fitur Alarm</h2>
+  <label for="alarmTime">Waktu Alarm (format: HH:MM):</label>
+  <input type="text" id="alarmTime" placeholder="08:00">
+  <button onclick="setAlarm()">Atur Alarm</button>
+
+  <h2>Akses Media dan Berbagi Foto ke WhatsApp</h2>
+  <button onclick="capturePhoto()">Ambil Foto</button>
+  <button onclick="shareToWhatsApp()">Bagikan ke WhatsApp</button>
+
+  <div id="timer">Waktu Aktivitas</div>
+
+  <script>
+    // Panggil fungsi updateScheduleTable saat halaman dimuat
+    window.onload = function() {
+      updateScheduleTable();
+    };
+  </script>
+</body>
+</html>
+
